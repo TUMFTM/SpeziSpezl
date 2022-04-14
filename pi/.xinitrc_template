@@ -1,0 +1,27 @@
+#!/usr/bin/bash
+source config.sh
+xset -dpms
+xset s off
+xset s noblank
+
+unclutter &
+chromium-browser https://$user:$passwd@spezispezl.de/vending/index.html \
+--window-size=1024,600 \
+--window-position=0,0 \
+--start-fullscreen \
+--disk-cache-size=0 \
+--kiosk \
+--disable-preconnect \
+--disable-gpu \
+--disable-plugins \
+--no-user-gesture-required \
+--restore-last-session \
+--noerrdialogs \
+--disable-translate \
+--no-first-run \
+--fast \
+--fast-start \
+--disable-infobars \
+--disable-features=TranslateUI \
+--disk-cache-dir=/dev/null \
+--password-store=basic

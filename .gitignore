@@ -1,0 +1,6 @@
+api/node_modules/
+api/config.js
+firmware/coffee/config.h
+paypal/config.py
+www_protected/config.js
+pi/config.sh

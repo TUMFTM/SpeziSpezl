@@ -1,0 +1,160 @@
+body {
+    overflow: hidden;
+}
+
+.qrcode{
+    width:100%;
+    height:100%;
+    margin-top: 20px;
+}
+.screen{
+    padding:25px; 
+    font-family:Causten-Black; 
+    font-size:150px; 
+    color:#919191;
+}
+.addframe{
+    margin: 25 30 40 40;
+    width:100%;
+}
+.ads{
+    margin-left:45px; 
+    font-family:Causten-Black; 
+    font-size:50px; 
+    color:#919191;
+}
+
+.register{
+    font-size: 40px;
+    color: #acacac;
+    font-family:Causten-Black;
+    margin-left: 0px;
+    text-align: center;
+}
+.slot_empty{
+    padding:25px; 
+    font-family:Causten-Black; 
+    font-size:150px; 
+    color:#919191;
+}
+
+.balance{
+    margin-left: 20px;
+    margin-top: 20px;
+    color: white;
+    font-size: 25px;
+    color: #acacac;
+    font-family:Causten-Black;
+}
+
+.balance_value{
+    display: inline;
+    margin-left: 20px;
+    margin-top: 20px;
+    color: white;
+    font-size: 40px;
+    color: #acacac;
+    font-family:Causten-Black;
+}
+
+
+.statusbar{
+    background-color: #272727;
+}
+
+.temperature {
+    margin-left: 20px;
+    color: white;
+    display: inline;
+    float: left;
+}
+
+.clock{
+    color: white;
+    float: left;
+    position: relative;
+    left: 325px;
+    display: inline;
+    text-align: center;
+}
+
+.network{
+    margin-right: 20px;
+    float:right;
+    display: inline;
+}
+
+.title {
+    color: white;
+    font-size: 40px;
+
+}
+
+.p_price {
+    float: left;
+    font-family:Causten-Black;
+    width: 19%;
+    color: #acacac;
+    font-size: 55px;
+}
+.product_iframe{
+    overflow: hidden;
+    width: 100%;
+    height : 580px;
+}
+
+.product_html{
+    overflow: hidden;
+    float: left;
+    width: 80%;
+    margin-right: 10px;
+}
+
+.product_div{
+    overflow: hidden;
+    color: white;
+    display: inline;
+    float: left;
+    width: 100%;
+}
+
+.product_div:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.product {
+    margin-top: 20px;
+    margin-left: 20px;
+    color: white;
+    display: inline;
+    float: left;
+    width: 100%;
+}
+
+
+
+/* Clear floats after the columns */
+.product:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.prod_column1 {
+  float: left;
+  width: 200px;
+  margin-right: 10px;
+}
+
+.prod_column2 {
+  float: left;
+  width: 60%;
+}
+
+
+@font-face {
+    font-family: Causten-Black;
+    src: url("fonts/Causten-Black.otf") format("opentype");
+}

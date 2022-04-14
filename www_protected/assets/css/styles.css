@@ -1,0 +1,93 @@
+@CHARSET "UTF-8";
+
+* {
+	-webkit-box-sizing: border-box;
+	   -moz-box-sizing: border-box;
+	        box-sizing: border-box;
+	outline: none;
+}
+body {
+	background: url(../images/bg.jpg) no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+.login-form {
+	margin: 100px auto;
+	max-width: 400px;
+    font: 16px/2em Lato, serif;
+}
+
+form[role=login] {
+	background: #303030;
+	border-radius: 10px;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+}
+	form[role=login] > section {
+		background: #1e1e1e;
+		border-top-left-radius: 10px;
+		border-top-right-radius: 10px;
+		-webkit-border-top-left-radius: 10px;
+        -moz-border-radius-topleft: 10px;
+        -webkit-border-top-right-radius: 10px;
+        -moz-border-radius-topright: 10px;
+	}
+	form[role=login] h2 {
+		font-size: 36px;
+		color: #fff;
+		margin-bottom: 1em;
+	}
+	form[role=login] > section input {
+		color: #c1c4c5;
+		background: #fafafa;
+		border: none;
+		border: 1px solid #EDEDED;
+	}
+	form[role=login] > section input,
+	form[role=login] button {
+		font-size: 16px;
+		margin: 16px 0;
+	}
+	form[role=login] button {
+		color: #fff;
+		font-weight: normal;
+		font-size: 17px;
+		text-align: left;
+		text-shadow: 1px 1px 1px #aaa;
+		background: #b4f012;
+	}
+	form[role=login] button:hover {
+		color: #fff;
+		background: #93C50D;
+	}
+	form[role=login] button:active {
+		color: #fff;
+	}
+	form[role=login] button:focus {
+		color: #fff;
+	}
+	form[role=login] > div {
+		font-size: 16px;
+		color: #ededed;
+	}
+		form[role=login] > div a {
+			color: #3487d4;
+		}
+		
+.form-outer {
+	padding: 20px 26px;
+}
+
+.form-links {
+	text-align: center;
+	color: #c8c8c8;
+	margin-top: 1em;
+	margin-bottom: 50px;
+}
+	.form-links a, .form-links a:hover {
+		color: #fff;
+		text-decoration: underline;
+	}

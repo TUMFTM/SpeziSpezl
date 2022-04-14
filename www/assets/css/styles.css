@@ -1,0 +1,366 @@
+@CHARSET "UTF-8";
+
+* {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	outline: none;
+}
+html, body {
+	background: url(../images/bg.jpg) no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  margin:0;
+  padding:0;
+  height:100%;
+}
+
+#body {
+   padding:10px;
+   padding-bottom:60px;
+}
+
+#container {
+   min-height:100%;
+   position:relative;
+}
+
+.stock {
+	display: inline-block;
+	float: right;
+	margin-top: -60px;
+  margin-right: 8px;
+}
+
+.footer {
+	background: white;
+	opacity: 30%;
+	margin-top: 30px;
+	padding-left: 20px;
+	position: absolute;
+  bottom: 0;
+  width: 100%;
+}
+
+.toolt {
+	color: white;
+  position:relative;
+  border-bottom:1px dashed #FFF;
+}
+
+.toolt:hover:before {
+  display:block;
+}
+
+.paypalmail {
+	margin-top: 9px;
+}
+
+.pricelink {
+	float: right;
+	margin-right: 15px;
+}
+
+.toolt:before {
+  content: attr(data-text);
+  position:absolute;
+  top:-30px;
+  transform:translateY(-50%);
+  left:-15px;
+  margin-left:15px;
+  width:220px;
+  padding:5px;
+  border-radius:10px;
+  background:#FFF;
+  color: black;
+  text-align:center;
+  display:none;
+}
+
+.wrong_pw{
+	color: red;
+	margin-left: 10px;
+}
+
+.scan_img {
+  border-radius: 5%;
+  width: 100%;
+}
+
+
+.login-form {
+	margin: 100px auto;
+	width: 100%;
+	max-width: 500px;
+  font: 16px/2em Lato, serif;
+}
+
+.howto {
+	color: white;
+}
+.card_id {
+    color: white;
+}
+
+.btn_action {
+	color: black;
+}
+
+.fill_text	{
+	color: white;
+}
+
+.transaction_id{
+	color: white;
+	font-size: 11px;
+	margin: 0 0 0 0;
+}
+
+.astext {
+    background:none;
+    border:none;
+    margin:0;
+    padding:0;
+    cursor: pointer;
+    color: skyblue;
+}
+
+#scan {
+    background:none;
+    border:none;
+    margin:0;
+    padding:0;
+    cursor: pointer;
+    color: skyblue;
+}
+
+
+.howto {
+	padding: 20px 20px;
+	margin: 100px auto auto 10px;
+	max-width: 100%;
+  font: 16px/2em Lato, serif;
+  background: #1e1e1e;
+	color: white;
+	margin-left: auto;
+  margin-right: auto;
+  width: 550px;
+	border-top-left-radius: 10px;
+	border-top-right-radius: 10px;
+	border-bottom-right-radius: 10px;
+	border-bottom-left-radius: 10px;
+	-webkit-border-top-left-radius: 10px;
+  -moz-border-radius-topleft: 10px;
+  -webkit-border-top-right-radius: 10px;
+  -moz-border-radius-topright: 10px;
+}
+
+.faq {
+	padding: 20px 26px;
+	max-width: 100%;
+  font: 16px/2em Lato, serif;
+  background: #1e1e1e;
+	color: white;
+	margin-top: 10px;
+	margin-left: auto;
+  margin-right: auto;
+  width: 550px;
+	border-top-left-radius: 10px;
+	border-top-right-radius: 10px;
+	border-bottom-right-radius: 10px;
+	border-bottom-left-radius: 10px;
+	-webkit-border-top-left-radius: 10px;
+  -moz-border-radius-topleft: 10px;
+  -webkit-border-top-right-radius: 10px;
+  -moz-border-radius-topright: 10px;
+}
+
+.register_form {
+  background: #1e1e1e;
+	color: white;
+	margin-left: auto;
+  margin-right: auto;
+  width: 450px;
+  max-width: 100%;
+	border-top-left-radius: 10px;
+	border-top-right-radius: 10px;
+	border-bottom-right-radius: 10px;
+	border-bottom-left-radius: 10px;
+	-webkit-border-top-left-radius: 10px;
+  -moz-border-radius-topleft: 10px;
+  -webkit-border-top-right-radius: 10px;
+  -moz-border-radius-topright: 10px;
+}
+
+
+.table-background {
+	background: #1e1e1e;
+	color: white;
+	margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 560px;
+  padding: 10px;
+  margin-top: 10px;
+  padding-top: 1px;
+	border-top-left-radius: 10px;
+	border-top-right-radius: 10px;
+	border-bottom-right-radius: 10px;
+	border-bottom-left-radius: 10px;
+	-webkit-border-top-left-radius: 10px;
+  -moz-border-radius-topleft: 10px;
+  -webkit-border-top-right-radius: 10px;
+  -moz-border-radius-topright: 10px;
+}
+
+
+.question {
+  text-align: justify;
+  color: white;
+  margin: 0 0 0 0;
+}
+
+p.answer {
+  text-align: justify;
+  color: #797981;
+  margin-left: 25px;
+}
+
+p.answer:before {
+	margin-left: -20px;
+  margin-right: 2px;
+  content: '➞';
+  width: -2em;
+  display: inline-block;
+ }
+
+.paragraph {
+  text-align: justify;
+    margin-left: 45px;
+    margin-top: -35px;
+}
+
+ol.circle {
+   list-style: none;
+   counter-reset: item;
+   padding-left: 0px;
+ }
+
+ ol.circle > li{
+   counter-increment: item;
+   margin-bottom: 5px;
+ }
+
+ol.circle > li:before {
+   margin-right: 10px;
+   content: counter(item);
+   background: #FF8A65;
+   border-radius: 100%;
+   color: white;
+   width: 2em;
+   text-align: center;
+   display: inline-block;
+ }
+
+
+form[role=login] {
+	background: #303030;
+	border-radius: 10px;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+}
+form[role=login] > section {
+	background: #1e1e1e;
+	border-top-left-radius: 10px;
+	border-top-right-radius: 10px;
+	-webkit-border-top-left-radius: 10px;
+  -moz-border-radius-topleft: 10px;
+  -webkit-border-top-right-radius: 10px;
+  -moz-border-radius-topright: 10px;
+}
+form[role=login] h2 {
+	font-size: 36px;
+	color: #fff;
+	margin-bottom: 1em;
+}
+form[role=login] > section input {
+	color: #c1c4c5;
+	background: #fafafa;
+	border: none;
+	border: 1px solid #EDEDED;
+}
+form[role=login] > section input,
+form[role=login] button {
+	font-size: 16px;
+	margin: 16px 0;
+}
+form[role=login] button {
+	text-align: center;
+	color: #fff;
+	font-weight: normal;
+	font-size: 17px;
+	text-shadow: 1px 1px 1px #aaa;
+	background: #4e65d5;
+}
+form[role=login] button:hover {
+	color: #fff;
+	background: #2e3e8d;
+}
+form[role=login] button:active {
+	color: #fff;
+}
+form[role=login] button:focus {
+	color: #fff;
+}
+form[role=login] > div {
+	font-size: 16px;
+	color: #ededed;
+}
+	form[role=login] > div a {
+		color: #3487d4;
+	}
+		
+.form-outer {
+	padding: 20px 26px;
+}
+
+.form-links {
+	text-align: center;
+	color: #c8c8c8;
+	margin-top: 1em;
+	margin-bottom: 50px;
+}
+.form-links a, .form-links a:hover {
+	color: #fff;
+	text-decoration: underline;
+}
+.impr {
+	color: black;
+	opacity: 100%;
+  position:relative;
+  border-bottom:1px dashed #FFF;
+}
+
+.impr:hover:before {
+  display:block;
+}
+
+.impr:before {
+  content: attr(data-text);
+  position:absolute;
+  background: white;
+  top:-50px;
+  left:-15px;
+  transform:translateY(-50%);
+  margin-left:10px;
+  width:300px;
+  padding:5px;
+  border-radius:10px;
+  background:#FFF;
+  color: black;
+  text-align:center;
+  display:none;
+}
+

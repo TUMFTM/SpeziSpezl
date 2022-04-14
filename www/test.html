@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
+    <title>SpeziSpezl</title>
+    <script type="text/javascript" src="jquery.min.js"></script>
+
+  </head>
+  <body>
+<div id="screenCoords">
+
+<script>
+
+
+function findScreenCoords(mouseEvent)
+{
+  var xpos;
+  var ypos;
+  if (mouseEvent)
+  {
+    //FireFox
+    xpos = mouseEvent.screenX;
+    ypos = mouseEvent.screenY;
+  }
+  else
+  {
+    //IE
+    xpos = window.event.screenX;
+    ypos = window.event.screenY;
+  }
+  document.getElementById("screenCoords").innerHTML = xpos + ", " + ypos;
+}
+//document.getElementById("screenBox").onmousemove = findScreenCoords;
+document.addEventListener('mousemove', (event) => {
+  findScreenCoords(event);
+});
+
+    </script>
+  </body>
+</html>

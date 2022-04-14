@@ -1,0 +1,32 @@
+    var postgres_ip = 'localhost';
+    var postgres_port = '5432';
+
+    const pg_config = {
+        host: postgres_ip,
+        user: 'spezl',
+        database: '',
+        password: '',
+        port: postgres_port,
+        max: 20,
+        connectionTimeoutMillis: 1000,
+    };
+
+    const mail = {
+          host: "smtp.mail.de",
+          port: 465,
+          secure: true, // true for 465, false for other ports
+          auth: {
+            user: 'spezispezl@mail.de',
+            pass: '',
+          },
+        };
+
+    const support_mail = 'schmid.flori@t-online.de';
+    const alert_mail = 'schmid.flori@t-online.de';
+    const alert_limit = 3;
+
+
+    module.exports.pg_config = pg_config;
+    module.exports.mail = mail;
+    module.exports.support_mail = support_mail;
+    module.exports.alert_mail = alert_mail;
