@@ -326,13 +326,23 @@ if(get_rfid(uid)){
 	}
 
 	write_led();
+
+// reset every 30min
+	//if(screensaver && millis() > 60*1000*30){
+	//	SCB_AIRCR = 0x05FA0004;
+	//	asm volatile ("dsb");
+	//}
 }
 
 void unlock(){
 	mcp.digitalWrite(PIN_RELEASE, 1);
+	mcp.digitalWrite(PIN_RELEASE, 1);
+	mcp.digitalWrite(PIN_RELEASE, 1);
 	Serial.println("Unlocked");
 }
 void lock(){
+	mcp.digitalWrite(PIN_RELEASE, 0);
+	mcp.digitalWrite(PIN_RELEASE, 0);
 	mcp.digitalWrite(PIN_RELEASE, 0);
 	Serial.println("Locked");
 }
@@ -467,6 +477,13 @@ bool process_cmd(char * str){
   } 
   else if(json.containsKey("PRODUCT_CLEAR")){ 
   	Serial.println("Got product clear");
+  } 
+  else if(json.containsKey("OPEN")){ 
+  	Serial.println("Testing Unlock");
+  	unlock();
+  	delay(1000);
+  	lock();
+
   } 
   else if(json.containsKey("GET_SENSOR")){ 
   	send_sensor(json["GET_SENSOR"]);

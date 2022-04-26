@@ -40,12 +40,14 @@
           <p class="answer">Du kannst die gesamte <a href="https://spezispezl.de/stock/">Preisliste auch online</a> einsehen. Am Getränkeautomaten werden die Preise auch bei der Fachauswahl angezeigt. </p>
           <p class="question">Mein Guthaben ist weniger gutgeschrieben worden als ich gesendet habe. Was ist da los?</p>
           <p class="answer">Du hast bei der Zahlung "Waren und Dienstleistungen" gewählt. Dafür fallen bei PayPal Gebühren an, die der Zahlungempfänger trägt. Diese Gebühren von uns weitergegeben und von deinem Guthaben abgezogen.</p>
+          <p class="question">Meine Aufladung wurde noch nicht verbucht, was ist da los?</p>
+          <p class="answer">Die Aufladungen werden anhand deines Namens automatisch verarbeitet. Damit dies Reibungsfrei abläuft, achte bitte darauf, dass der Vor- und Nachname der selbe ist wie bei PayPal. Bei mehrteiligen Vor- oder Nachnamen kann dies u.U zu Problemen führeren und deine Einzahlung wird manuell verarbeitet und ggf. das Problem behoben. Dies kann bis zu 48h dauern. Wenn du sicher gehen willst, schreibe deine E-mail Adresse mit der du dich registriert hast in das Kommentar/Zahlungshinweis Feld.</p>
           <p class="question">Wie werden die Preise gewählt?</p>
           <p class="answer">Der Getränkeservice verfolgt keine Gewinnabsicht, daher orientieren sich die Verkaufspreise sehr nah an den Einkaufspreisen</p>
           <p class="question">Wozu brauche ich meine Student- bzw. PersonalCard?</p>
           <p class="answer">Damit Identifizierst du dich an den Automaten. Es wird nur die Karten-ID verwendet, dein Mensa Guthaben kann nicht verwendet werden.</p>
           <p class="question">Meine Karte wird nicht erkannt. Was kann ich tun?</p>
-          <p class="answer">Es werden alle Karten unterstützt, die der ISO-15693 entsprechen. Ältere Mitarbeiter und Mensa-Karten unterstützen dies noch nicht. Du kannst auch andere Karten zur Identifizierung verwenden, probiere es einfach aus. (Skipässe, ...) </p>
+          <p class="answer">Es werden alle Karten unterstützt, die der ISO-14443 oder ISO-15693 entsprechen. Ältere Mitarbeiter- und Mensa-Karten unterstützen dies teilweise noch nicht. Du kannst auch andere Karten zur Identifizierung verwenden, probiere es einfach aus. (Skipässe, ...) </p>
           <p class="question">Kann ich bei Paypal auch Waren & Dienstleistungen wählen?</p>
           <p class="answer">Ja, jedoch werden die Paypal Gebühren von deinem Guthaben abgezogen.</p>
           <p class="question">Muss ich mein Guthaben zuerst aufladen?</p> 
@@ -489,7 +491,7 @@ function submitForm(e) {
     set_balance_alert(document.forms["form_balance_alert"]["alert_amount"].value)
   }
   else if(e.target.name == 'supply'){
-    send_supply(devices[document.forms["supply"]["supply_device"].value].device, document.forms["supply"]["supply_price"].value, document.forms["supply"]["supply_comment"].value);
+    send_supply(devices[document.forms["supply"]["supply_device"].value].device, document.forms["supply"]["supply_price"].value.replace(',','.'), document.forms["supply"]["supply_comment"].value);
   }
   else if(e.target.name == 'fillup'){
     var slots = parseInt(devices[document.getElementById('fillup_device').value].slots)

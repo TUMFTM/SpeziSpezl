@@ -46,11 +46,18 @@ def insert_transaction(comment, amount, fee, tid, name, surname):
         user_id = user[0][0]
     else:
         qstr = '''select user_id from spezispezl."user" where lower(name)='{name}' and lower(surname)='{surname}'; '''.format(name = name.lower(), surname = surname.lower())
+        print(qstr)
         user = cnx.execute(qstr).fetchall()
         if len(user) > 0:
             user_id = user[0][0]
         else:
-            print("error splitting name")
+            qstr = '''select user_id from spezispezl."user" where lower(name)='{name}'; '''.format(name = name.lower())
+            print(qstr)
+            user = cnx.execute(qstr).fetchall()
+            if len(user) == 1:
+                user_id = user[0][0]
+            else:
+                print("no user found")
     if user_id:
         qstr = '''insert into spezispezl.transactions (user_id, source, product, price, transaction_id, sender, balance_new, fee) values ({uid},'paypal', 'deposit', {amount}, '{tid}', '{sender}', (select balance from spezispezl.user u where u.user_id = {uid}) + {amount} , {fee}) ;'''.format(uid= user_id, amount = amount, tid = tid, sender = name +', '+surname, fee= fee )
         qstr2 = '''update spezispezl.user set balance = balance + {amount} where user_id = {uid} returning balance, (select mail from spezispezl.user where user_id='{uid}');'''.format(uid= user_id, amount = amount)
@@ -99,7 +106,7 @@ def paypal_parse(html):
             print(g)
         if len(m.groups()) == 2:
             surname = m.group(1).split(' ')[0]
-            name = m.group(1).split(' ')[1]
+            name = m.group(1).split(' ')[-1]
 
 
     m = re.search(tid_pattern, html)
