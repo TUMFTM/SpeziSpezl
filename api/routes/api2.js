@@ -51,7 +51,7 @@ const bcrypt = require('bcrypt');
                     console.log(err);
                     return next(err);
                 } else {
-                    var query_string =  "select t.source, t.slot, t.price, t.fee ,(select display_name from spezispezl.products where name= t.product), t.time, t.balance_new, t.transaction_id, t.sender from spezispezl.transactions t, spezispezl.user u where u.user_id = (select user_id from spezispezl.token where token = $1) and t.user_id = u.user_id and t.committed order by t.time desc";
+                    var query_string =  "select t.id, t.source, t.slot, t.price, t.sender, t.fee ,(select display_name from spezispezl.products where name= t.product), t.time, t.balance_new, t.transaction_id, t.sender from spezispezl.transactions t, spezispezl.user u where u.user_id = (select user_id from spezispezl.token where token = $1) and t.user_id = u.user_id and t.committed order by t.time desc";
                     var query = {
                         name: "list_transcations",
                         text: query_string,
@@ -160,6 +160,7 @@ const bcrypt = require('bcrypt');
         res.setHeader('Access-Control-Allow-Credentials', true); // If needed
         
         if(req.body.token && req.body.device){
+            console.log(req.body.token);
             pool.connect(function (err, client, done) {
                 if (err) {
                     done();
@@ -221,7 +222,36 @@ const bcrypt = require('bcrypt');
         }
     });
 
+    router.get('/wifibutton', function (req, res, next) {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE'); // If needed
+        res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,contenttype'); // If needed
+        res.setHeader('Access-Control-Allow-Credentials', true); // If needed
+        
+        if(req.query.id){
+            pool.connect(function (err, client, done) {
+                if (err) {
+                    done();
+                    console.log(err);
+                    return next(err);
+                } else {
+                    console.log(`Button ${req.query.id} pressed`);
+                    var query_string =  "insert into spezispezl.sensors (sensor_id, value) values (8,$1)";
+                    var query = {
+                        name: "insert_wifibutton",
+                        text: query_string,
+                        values: [req.query.id],}
+                    client.query(query, function (err, result) {
+                        done();
+                        res.json({ state: "insert_ok"});
+                        
+                    });
+                }
+            });
+        }
+    });
 
+    
     router.post('/get_device_config', function (req, res, next) {
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE'); // If needed
@@ -908,11 +938,11 @@ const bcrypt = require('bcrypt');
                             res.json({ state: "error"});
                         } else {
                             if(result && result.rows.length > 0){
-                                var query_string =`insert into spezispezl.transactions (user_id, source, product, price, sender, verified, committed ) values ( (select user_id from spezispezl.token where token = $1), $2, 'supply', $3, $4, true, true)`;
+                                var query_string =`insert into spezispezl.transactions (user_id, source, product, price, sender, verified, committed ) values ( $1, $2, 'supply', $3, $4, true, true)`;
                                 var query = {
                                     name: "insert_supply",
                                     text: query_string,
-                                    values: [req.body.token, req.body.device, req.body.price, req.body.comment],}
+                                    values: [2, req.body.device, req.body.price, req.body.comment],}
                                 //console.log(query);
                                 client.query(query, function (err, result) {
                                     done();
@@ -932,6 +962,123 @@ const bcrypt = require('bcrypt');
                     });
                 }
              });
+        } else {
+            res.json({ state: "unauthorized"});
+        }
+    });
+
+        router.post('/storno', function (req, res, next) {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE'); // If needed
+        res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,contenttype'); // If needed
+        res.setHeader('Access-Control-Allow-Credentials', true); // If needed
+        
+        if(req.body.token && req.body.id){
+            pool.connect(function (err, client, done) {
+                if (err) {
+                    done();
+                    console.log(err);
+                    return next(err);
+                } else {
+                    var query_string = 'select u.surname, u.name, t.* from spezispezl.transactions t, spezispezl.user u where u.user_id = t.user_id and t.user_id = (select user_id from spezispezl.token where token = $1) and t.id = $2;';
+                    var query = {
+                        name: "get_transaction_storno",
+                        text: query_string,
+                        values: [req.body.token, req.body.id],}
+                    client.query(query, function (err, result) {
+                        done();
+                        if (err) {
+                            return next(err);
+                            res.json({ state: "fail"});
+                        } else {
+                            if(result && result.rows.length > 0){
+                                let info = transporter.sendMail({
+                                from: 'Spezispezl <spezispezl@mail.de>', // sender address
+                                to: config.support_mail, // list of receivers
+                                subject: "Spezispezl Stornoanfrage", // Subject line
+                                html: 
+                                    `<p><strong>Stornoanfrage für ${req.body.id}</strong></p><br> \
+                                    ${JSON.stringify(result.rows[0])}<br><br>Nachricht:<br>${req.body.msg}<br><br>\
+                                    <p><a href="https://spezispezl.de?id=${req.body.id}#confirm_storno">Bestätigen</a></p> \
+                                    <p>&nbsp;</p> \
+                                    <p>Dein SpeziSpezl</p>`,
+                                text: `need html`
+                              });
+                                res.json({ state: "success"});
+                            }
+                        }
+                    });
+                }
+            });
+        } else {
+            res.json({ state: "unauthorized"});
+        }
+    });
+
+    router.post('/confirm_storno', function (req, res, next) {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE'); // If needed
+        res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,contenttype'); // If needed
+        res.setHeader('Access-Control-Allow-Credentials', true); // If needed
+        
+        if(req.body.token && req.body.id){
+            pool.connect(function (err, client, done) {
+                if (err) {
+                    done();
+                    console.log(err);
+                    return next(err);
+                } else {
+                    var query_string = 'update spezispezl.transactions set committed = false where committed = true and id = $2 and (select is_filler from spezispezl.user where user_id = (select user_id from spezispezl.token where token = $1)) returning price, user_id;';
+                    var query = {
+                        name: "do_transaction_storno",
+                        text: query_string,
+                        values: [req.body.token, req.body.id],}
+                    client.query(query, function (err, result) {
+                        if (err) {
+                            return next(err);
+                            res.json({ state: "fail"});
+                        } else {
+                            if(result && result.rows.length == 1){
+                                var price = result.rows[0].price;
+                                var user_id = result.rows[0].user_id
+                                var query_string = "insert into spezispezl.transactions (user_id, source, product, transaction_id, price, balance_new, verified, committed) values ($1,'chargeback','chargeback', $3, $2, (select balance from spezispezl.user where user_id= $1) +$2, true, true)";
+                                var query = {
+                                    name: "insert_transaction_storno",
+                                    text: query_string,
+                                    values: [user_id, -price, `${req.body.id} Rückbuchung`],}
+                                client.query(query, function (err, result) {
+                                    if (err) {
+                                        return next(err);
+                                        res.json({ state: "fail"});
+                                    } else {
+                                        var query_string =  'update spezispezl.user set balance = balance-$2 where user_id = $3 and (select is_filler from spezispezl.user where user_id = (select user_id from spezispezl.token where token = $1)) returning balance;';
+                                        var query = {
+                                            name: "do_balance_storno",
+                                            text: query_string,
+                                            values: [req.body.token, price, user_id],}
+                                        client.query(query, function (err, result) {
+                                            done();
+                                            if (err) {
+                                                return next(err);
+                                                res.json({ state: "fail"});
+                                            } else {
+                                                if(result && result.rows.length == 1){
+                                                    //console.log(result.rows[0].balance);
+                                                    res.json({ state: "success"});
+                                                } else {
+                                                    res.json({ state: "fail2"});
+                                                }
+                                            }
+                                        });
+                                    }
+                                });
+                            } else {
+                                res.json({ state: "no result"});
+                            }
+                        }
+                    });
+                }
+            });
         } else {
             res.json({ state: "unauthorized"});
         }

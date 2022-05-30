@@ -22,6 +22,7 @@
 
     const bcrypt = require('bcrypt');
     var uid = require('rand-token').uid;
+    last_send = 0;
 
     var pool = new pg.Pool(config.pg_config);
     pool.on('error', function(err, client) {
@@ -63,6 +64,7 @@
                         } else {
                             if(result && result.rows.length > 0){
                                 res.send(result.rows[0]);
+                                console.log(`Balance: ${result.rows[0].balance}`);
                             } else {
                                 res.json({ state: "user not exists"});
                             }
@@ -89,31 +91,35 @@
                     return next(err);
                 } else {
 
-                    var query_string =  "select * from spezispezl.cards where card_id = $1";
+                    var query_string =  "select * from (select (select price_group from spezispezl.user where user_id = (select user_id from spezispezl.cards where card_id = $1)) as price_group, c.slot, p.*, c.items from spezispezl.config c, spezispezl.products p where c.device = $2 and p.name = c.product) z where  price_group is not NULL";
                     var query = {
-                        name: "check_card",
+                        name: "get_products_price_group",
                         text: query_string,
-                        values: [req.body.card_id],}
+                        values: [req.body.card_id, req.body.device],}
                     client.query(query, function (err, result) {
-                        if(result.rows.length > 0){
-                            //console.log("card ok");
-                            var query_string =  "select * from spezispezl.get_price($1, $2) order by slot;";
-                            var query = {
-                                name: "get_products",
-                                text: query_string,
-                                values: [req.body.card_id, req.body.device],}
-                            client.query(query, function (err, result) {
-                                done();
-                                if (err) {
-                                    return next(err);
-                                } else {
-                                    res.send(result.rows);
-                                }
-                            });
+                        done();
+                        if (err) {
+                            return next(err);
                         } else {
-                            done();
-                            res.json({ state: "user not exists"});
-                        }
+                            //console.log(result.rows);
+                            if(result.rows.length > 0){
+                                var pg = result.rows[0].price_group;
+                                var data = result.rows.map(x => {return {
+                                    slot: x.slot,
+                                    product_id: x.product_id,
+                                    items: x.items,
+                                    price: x[pg],
+                                    price_fix: x.price_fix,
+                                    name: x.name,
+                                    display_name: x.display_name,
+                                    property: x.property
+                                }});
+                                res.send(data);
+
+                            } else {
+                                res.json({ state: "user not exists"});
+                            }
+                        } 
                     });
                 }
             });
@@ -136,93 +142,105 @@
                     return next(err);
                 } else {
                     if(req.body.single){ // finish transaction in a single request
-                        var query;
-                        if(req.body.parameter){ // price per parameter unit + price_fix
-                            var query_string =  " insert into spezispezl.transactions (user_id, source, slot, product, price, balance_new, verified, items, committed, parameter) values ( (select user_id from spezispezl.cards where card_id = $1), $2, $3, \
-                            (select c.product from spezispezl.config c where c.slot = $3 and c.device = $2), (select -((price * $4)+price_fix) from spezispezl.get_price($1, $2) where slot = $3), \
-                            (select u.balance from spezispezl.user u where u.user_id =  (select user_id from spezispezl.cards where card_id = $1)) - (select (price * $4)+price_fix from spezispezl.get_price($1, $2) where slot = $3) , true, (select c.items from spezispezl.config c where c.slot = $3 and c.device = $2)-1, true, $4 ) returning id;";
-                            query = {
-                            name: "do_transaction_single_param",
-                            text: query_string,
-                            values: [req.body.card_id, req.body.device, req.body.slot, req.body.parameter],}
-                        } else {
-                            var query_string =  " insert into spezispezl.transactions (user_id, source, slot, product, price, balance_new, verified, items, committed) values ( (select user_id from spezispezl.cards where card_id = $1), $2, $3, \
-                            (select c.product from spezispezl.config c where c.slot = $3 and c.device = $2), (select -price from spezispezl.get_price($1, $2) where slot = $3), \
-                            (select u.balance from spezispezl.user u where u.user_id =  (select user_id from spezispezl.cards where card_id = $1)) - (select price from spezispezl.get_price($1, $2) where slot = $3) , true, (select c.items from spezispezl.config c where c.slot = $3 and c.device = $2)-1, true) returning id;";
-                            query = {
-                                name: "do_transaction_single",
-                                text: query_string,
-                                values: [req.body.card_id, req.body.device, req.body.slot],}
-                        }
 
+                        var query_string =  "select * from (select u.price_group, u.balance, u.trusted,  \
+                         c.slot, p.*, c.items from spezispezl.config c, spezispezl.products p, (select price_group, balance, trusted from spezispezl.user where user_id = (select user_id from spezispezl.cards where card_id = $1)) u where c.device = $3 and p.name = c.product) z where  price_group is not NULL and slot = $2";
+                        var query = {
+                            name: "get_products_price_group_slot",
+                            text: query_string,
+                            values: [req.body.card_id, req.body.slot, req.body.device],}
                         client.query(query, function (err, result) {
+                            //console.log(result.rows);
                             if (err) {
                                 done();
-                                console.log(err);
                                 return next(err);
-                            } else if(result && result.rows.length){
-                                console.log(result.rows[0].id);
-                                var query_string = "update spezispezl.user set balance = balance + (select price from spezispezl.transactions where id = $1) where user_id = (select user_id from spezispezl.cards where card_id = $2) returning (select user_id from spezispezl.cards where card_id = $2), balance, balance_alert, mail;";
-                                var query = {
-                                    name: "update_balance_single",
-                                    text: query_string,
-                                    values: [result.rows[0].id, req.body.card_id],}
-                                client.query(query, function (err, result) {
-                                    if (err) {
-                                        done();
-                                        console.log(err);
-                                        return next(err);
+                            } else if(result.rows.length > 0){
+                                var price = parseFloat(result.rows[0][result.rows[0].price_group]);
+                                var price_fix = parseFloat(result.rows[0].price_fix);
+                                if( (parseFloat(result.rows[0].balance) >= price) || result.rows[0].trusted){
+                                    if(req.body.parameter){ // price per parameter unit + price_fix
+                                        price = price*parseFloat(req.body.parameter) + price_fix;
                                     }
-                                    if(result && result.rows.length){
-                                        var balance_alert = parseFloat(result.rows[0].balance_alert);
-                                        if( balance_alert !=-1 && parseFloat(result.rows[0].balance) < balance_alert){
-                                            send_balance_alert(transporter, result.rows[0]);
-                                        }
-                                        var query_string =  "update spezispezl.config set items = items - 1, last_request = CURRENT_TIMESTAMP where device = $1 and slot = $2 returning device, slot, product, items;";
-                                        var query = {
-                                            name: "sub_item",
-                                            text: query_string,
-                                            values: [req.body.device, req.body.slot],}
-                                        client.query(query, function (err, result) {
-                                            if(err){
-                                                done();
-                                                res.json({ state: "fail"});
-                                            } else {
-                                                if( (result && result.rows[0][3] > 0 && result.rows[0][3] < config.alert_limit)){
-                                                    var missing = result.rows[0];
-                                                    var query_string =  "SELECT distinct(t.product), sum(t.items) FROM spezispezl.config t group by t.product;";
+                                    var query_string =  " insert into spezispezl.transactions (user_id, source, slot, product, price, balance_new, verified, items, committed, parameter) values ( (select user_id from spezispezl.cards where card_id = $1), $2, $3, \
+                                    (select c.product from spezispezl.config c where c.slot = $3 and c.device = $2), 0.0- $4, \
+                                    (select u.balance from spezispezl.user u where u.user_id =  (select user_id from spezispezl.cards where card_id = $1)) -$4 , true, (select c.items from spezispezl.config c where c.slot = $3 and c.device = $2)-1, true, $5) returning id;";
+                                    var query = {
+                                        name: "do_transaction_single",
+                                        text: query_string,
+                                        values: [req.body.card_id, req.body.device, req.body.slot, price, req.body.parameter],}
+
+                                    client.query(query, function (err, result) {
+                                        if (err) {
+                                            done();
+                                            console.log(err);
+                                            return next(err);
+                                        } else if(result && result.rows.length){
+                                            //console.log(result.rows[0].id);
+                                            var query_string = "update spezispezl.user set balance = balance + (select price from spezispezl.transactions where id = $1) where user_id = (select user_id from spezispezl.cards where card_id = $2) returning (select user_id from spezispezl.cards where card_id = $2), balance, balance_alert, mail;";
+                                            var query = {
+                                                name: "update_balance_single",
+                                                text: query_string,
+                                                values: [result.rows[0].id, req.body.card_id],}
+                                            client.query(query, function (err, result) {
+                                                if (err) {
+                                                    done();
+                                                    console.log(err);
+                                                    return next(err);
+                                                }
+                                                if(result && result.rows.length){
+                                                    var balance_alert = parseFloat(result.rows[0].balance_alert);
+                                                    if( balance_alert !=-1 && parseFloat(result.rows[0].balance) < balance_alert){
+                                                        send_balance_alert(transporter, result.rows[0]);
+                                                    }
+                                                    var query_string =  "update spezispezl.config set items = items - 1, last_request = CURRENT_TIMESTAMP where device = $1 and slot = $2 returning device, slot, product, items;";
                                                     var query = {
-                                                        name: "get_all_items",
+                                                        name: "sub_item",
                                                         text: query_string,
-                                                        values: [],}
+                                                        values: [req.body.device, req.body.slot],}
                                                     client.query(query, function (err, result) {
-                                                        done();
-                                                        if (err) {
-                                                            return next(err);
+                                                        if(err){
+                                                            done();
+                                                            res.json({ state: "fail"});
                                                         } else {
-                                                            if(result && result.rows.length > 0){
-                                                                var all="";
-                                                                for (r of result.rows){
-                                                                    all = all + `${r.product}: ${r.sum}\n`
-                                                                }
+                                                            if( (result && result.rows[0][3] > 0 && result.rows[0][3] < config.alert_limit)){
+                                                                var missing = result.rows[0];
+                                                                var query_string =  "SELECT distinct(t.product), sum(t.items) FROM spezispezl.config t group by t.product;";
+                                                                var query = {
+                                                                    name: "get_all_items",
+                                                                    text: query_string,
+                                                                    values: [],}
+                                                                client.query(query, function (err, result) {
+                                                                    done();
+                                                                    if (err) {
+                                                                        return next(err);
+                                                                    } else {
+                                                                        if(result && result.rows.length > 0){
+                                                                            var all="";
+                                                                            for (r of result.rows){
+                                                                                all = all + `${r.product}: ${r.sum}\n`
+                                                                            }
+                                                                        }
+                                                                        send_items_alert(transporter, config, missing, all);
+                                                                    }
+                                                                });
+                                                            } else {
+                                                                done();
                                                             }
-                                                            send_items_alert(transporter, config, missing, all);
+                                                            res.json({ state: "success"}); 
                                                         }
                                                     });
                                                 } else {
-                                                    done();
+                                                   done();
+                                                   res.json({ state: "fail"});
                                                 }
-                                                res.json({ state: "success"}); 
-                                            }
-                                        });
-                                    } else {
-                                       done();
-                                       res.json({ state: "fail"});
-                                    }
-                                });
-                            }
+                                            });
+                                        }
+                                    });
+                                } else {
+                                    res.json({ state: "balance not sufficient"});
+                                }
+                            } else {res.json({ state: "user not exists"});}
                         });
-
                     } 
                     //else{ // need to verify transaction --> currently no supportet and outdated
                     //    var query_string =  " insert into spezispezl.transactions (user_id, source, slot, product, price, balance_new, verified, items, committed) values ( (select user_id from spezispezl.cards where card_id = $1), $2, $3, \
@@ -302,7 +320,11 @@
         res.setHeader('Access-Control-Allow-Credentials', true); // If needed
         //console.log(req.body.message);
         if(req.body.type && req.body.slot ){
-            send_alert(transporter, config, req.body.type, req.body.slot)
+            if(Date.now() - last_send > 3600000){
+                last_send = Date.now();
+                send_alert(transporter, config, req.body.type, req.body.slot);
+                console.log("sending alert mail");
+            } else {console.log("alert already sent");}
             res.json({ state: "success"});
         }
     });

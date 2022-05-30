@@ -17,6 +17,15 @@ html, body {
   height:100%;
 }
 
+.menubutton {
+  transition-duration: 0.2s;
+}
+
+.menubutton:hover {
+  background-color: #4e65d5;
+  color: white;
+}
+
 #body {
    padding:10px;
    padding-bottom:60px;

@@ -7,6 +7,8 @@ from smtplib import SMTP_SSL, SMTP_SSL_PORT
 from email.mime.text import MIMEText
 import config
 
+supportmail = 'schmid.flori@t-online.de'
+
 
 cnx = create_engine(config.postgres_str)
 
@@ -34,6 +36,7 @@ def send_mail(mode, amount, mail, loaded):
         smtp_server.login(config.username, config.password)
         smtp_server.sendmail(from_email, to_emails, msg.as_string())
         smtp_server.quit()
+        print("Mail sent")
     except Exception as e:
         print(e)
 
@@ -51,13 +54,15 @@ def insert_transaction(comment, amount, fee, tid, name, surname):
         if len(user) > 0:
             user_id = user[0][0]
         else:
-            qstr = '''select user_id from spezispezl."user" where lower(name)='{name}'; '''.format(name = name.lower())
+            qstr = '''select user_id from spezispezl."user" where lower(name) like '%%{name}'; '''.format(name = name.lower())
             print(qstr)
             user = cnx.execute(qstr).fetchall()
+            #print(user)
             if len(user) == 1:
                 user_id = user[0][0]
             else:
                 print("no user found")
+    print("User Id: " + str(user_id))
     if user_id:
         qstr = '''insert into spezispezl.transactions (user_id, source, product, price, transaction_id, sender, balance_new, fee) values ({uid},'paypal', 'deposit', {amount}, '{tid}', '{sender}', (select balance from spezispezl.user u where u.user_id = {uid}) + {amount} , {fee}) ;'''.format(uid= user_id, amount = amount, tid = tid, sender = name +', '+surname, fee= fee )
         qstr2 = '''update spezispezl.user set balance = balance + {amount} where user_id = {uid} returning balance, (select mail from spezispezl.user where user_id='{uid}');'''.format(uid= user_id, amount = amount)
@@ -76,7 +81,7 @@ def insert_transaction(comment, amount, fee, tid, name, surname):
         return False
     else:
         print("Can not find user_id")
-        send_mail('error', 0, 'schmid.flori@t-online.de', ["Can not find user ID for name: {name} surname: {surname} comment: {comment}".format(name=name, surname=surname, comment=comment)])
+        send_mail('error', 0, supportmail, ["Can not find user ID for name: {name} surname: {surname} comment: {comment}".format(name=name, surname=surname, comment=comment)])
     return False
 
 
@@ -88,6 +93,7 @@ def paypal_parse(html):
     comment = ''
     surname = ''
     name = ''
+    amount = 0
     comment_pattern = r'Mitteilung von .*?:(?:<.*?>\s*)*([\w@.-]*).*'
     name_pattern = r'>([\w -]*) hat Ihnen ([\d,]*).*?€.*gesendet<'
     tid_pattern = r'.*Transaktionscode(?:\s*<.*?>\s*)*(\w*).*?Erhaltener Betrag(?:\s*<.*?>\s*)*([0-9,.]*)'
@@ -105,9 +111,10 @@ def paypal_parse(html):
         for g in m.groups():
             print(g)
         if len(m.groups()) == 2:
-            surname = m.group(1).split(' ')[0]
-            name = m.group(1).split(' ')[-1]
-
+            surname = m.group(1).strip().split(' ')[0]
+            name = m.group(1).strip().split(' ')[-1]
+            #print("Surname: "+ surname)
+            #print("Name: "+ name)
 
     m = re.search(tid_pattern, html)
     if m:
@@ -139,6 +146,8 @@ def paypal_parse(html):
     if name and amount - fee > 0 and tid:
         return insert_transaction(comment, amount - fee, fee, tid, name, surname)
     else:
+        if name !='' or surname != '' or amount !=0: # found something but can not insert
+            send_mail('error', 0, supportmail, ["PayPal pase error for name: {name} surname: {surname} comment: {comment}".format(name=name, surname=surname, comment=comment)])
         return True #delete mail
 
 def handle_mails():
@@ -182,7 +191,7 @@ def handle_mails():
                             if content_type == "text/html":
                                 ret = body
                             if paypal_parse (ret):
-                                print("insert ok")
+                                print("insert ok. moving mail")
                                 imap.copy(str(i), "imported")
                                 imap.store(str(i), '+FLAGS', '\\Deleted')
                                 return

@@ -25,7 +25,7 @@
           <div class="howto">
             <h2>Noch kein SpeziSpezl?</h2>
             <ol class="circle"> 
-              <li><p class="paragraph">Halte deine StudentCard oder PersonalCard an den Kartenleser am Automaten und scanne den angezeigt Registrierungs QR-Code.<br>Alternativ kannst du deine Karte auch mit deinem NFC-fähigen Android Smartphone mit dem Chrome Browser auslesen (Wird unterstützt, wenn der Link "Einfach StudentCard mit dem Smartphone scannen" auf der <a href="https://www.spezispezl.de">Startseite</a> angezeigt wird)</p></li> 
+              <li><p class="paragraph">Halte deine StudentCard oder PersonalCard an den Kartenleser am Automaten und scanne den angezeigt Registrierungs QR-Code.<br>Alternativ kannst du deine Karte auch mit deinem NFC-fähigen Android Smartphone mit dem Chrome Browser auslesen (Wird unterstützt, wenn der Link "Einfach StudentCard mit dem Smartphone scannen" auf der <a href="/">Startseite</a> angezeigt wird)</p></li> 
               <li><p class="paragraph">Lege einen Account an. Verwende am besten die selbe E-mail Adresse und Namen, wie duch auch für deinen Paypal Account verwendest. Dadurch können die Einzahlungen automatisch zugeordnet werden.</p></li> 
               <li><p class="paragraph">Bestätige deine E-mail Adresse über den Link in der E-mail.</p></li> 
               <li><p class="paragraph">Lade dein Guthaben auf. Sende hierzu den gewünschten Betrag über Paypal Familie&Freunde an <a href="https://www.paypal.com/paypalme/spezispezl">SpeziSpezl</a>
@@ -37,7 +37,7 @@
         <div class="faq">
           <h2>FAQ</h2>
           <p class="question">Was kosten die Getränke bei SpeziSpezl?</p>
-          <p class="answer">Du kannst die gesamte <a href="https://spezispezl.de/stock/">Preisliste auch online</a> einsehen. Am Getränkeautomaten werden die Preise auch bei der Fachauswahl angezeigt. </p>
+          <p class="answer">Du kannst die gesamte <a href="/stock">Preisliste auch online</a> einsehen. Am Getränkeautomaten werden die Preise auch bei der Fachauswahl angezeigt. </p>
           <p class="question">Mein Guthaben ist weniger gutgeschrieben worden als ich gesendet habe. Was ist da los?</p>
           <p class="answer">Du hast bei der Zahlung "Waren und Dienstleistungen" gewählt. Dafür fallen bei PayPal Gebühren an, die der Zahlungempfänger trägt. Diese Gebühren von uns weitergegeben und von deinem Guthaben abgezogen.</p>
           <p class="question">Meine Aufladung wurde noch nicht verbucht, was ist da los?</p>
@@ -58,7 +58,7 @@
           <p class="answer">Schreibe einfach eine Supportanfrage, wir werden uns schnellstmöglich darum kümmern.</p>
         </div> 
         <div class="faq">
-              Alles klar? <a href="https://spezispezl.de/" onclick="window.location.href = 'https://spezispezl.de/'; window.location.reload();">Hier geht's zum Login</a>
+              Alles klar? <a href="/">Hier geht's zum Login</a>
             </div>
       </section>
     </div>
@@ -76,14 +76,14 @@
               <p id="wrong_pw" class="wrong_pw" style="display: none;"></p>
             </section>
             <div id="register_desktop" class="form-outer">
-              Noch kein Account? <a href="#howto" onclick="window.location.href ='https://spezispezl.de/#howto'; window.location.reload();">Hier geht's zur Anleitung</a>
+              Noch kein Account? <a href="/#howto">Hier geht's zur Anleitung</a>
             </div>
             <div id="register_mobile" class="form-outer" role="login">
               Noch kein Account? <button type="button" id="scan" onclick="read_card()">Einfach StudentCard mit dem Smartphone scannen</button>
               <p id="scan_info" class="wrong_pw" style="display: none;"></p>
               <img src="/assets/images/scan.png" id="scan_img" class="scan_img" style="display: none;"></p>
                
-                Verwirrt? <a href="#howto" onclick="window.location.href ='https://spezispezl.de/#howto'; window.location.reload();">Hier geht's zu den FAQs</a>
+                Verwirrt? <a href="/#howto" >Hier geht's zu den FAQs</a>
             </div>
           </form>
         </section>
@@ -110,12 +110,27 @@
         </div>
         </section>
         <div id="register_cont" class="form-outer">
-              Fragen? <a href="https://spezispezl.de/#howto" onclick="window.location.href = 'https://spezispezl.de/#howto'; window.location.reload();">Hier geht's zur Anleitung</a>
+              Fragen? <a href="/#howto" >Hier geht's zur Anleitung</a>
             </div>
       </form>
      </section>
       </section>
     </div>
+
+    <div id="confirm_storno" style="display: none;">
+      <section class="container">
+        <section class="login-form">
+          <form name="confirm_storno" role="login">
+            <section class="form-outer">
+              <h2>Storno bestätigen</h2>
+              <INPUT TYPE="hidden" NAME="token" VALUE="">
+              <button id="conf_storno_btn" type="submit" value="Bestätigen" name="go" class="btn btn-lg btn-block">Bestätigen</button>
+            </section>
+          </form>
+        </section>
+      </section>
+    </div>
+
 
     <div id="validate_mail" style="display: none;">
       <section class="container">
@@ -124,19 +139,34 @@
             <section class="form-outer">
               <h2>E-mail Adresse bestätigen</h2>
               <INPUT TYPE="hidden" NAME="token" VALUE="">
-              <button id="verify_btn" type="submit" value="Bestätigen" name="go" class="btn btn-lg btn-block">Bestätigen</button>
+              <button id="storno_btn" type="submit" value="Bestätigen" name="go" class="btn btn-lg btn-block">Bestätigen</button>
             </section>
             <div id="verify_cont" class="form-outer" style="display: none;">
               E-mail Adresse erfolgreich bestätigt.<br><br>
               Lade als nächstes dein Guthaben auf:<br>Sende dazu den gewünschten Betrag über PayPal an <a href="mailto:spezispezl@mail.de">spezispezl@mail.de</a> bzw. <a href="https://www.paypal.com/paypalme/spezispezl">SpeziSpezls Paypal.me</a><br><br><b>Achtung:</b><br> Achte drauf <b>Familie und Freunde</b> auszuwählen, da die Gebühren ansonsten von deinem Guthaben abgezogen werden.<br><br><img src="/assets/images/pp.png" id="pp_img" class="scan_img"><br><br>Die Aufladung wird automatisch verarbeitet und normalerweise innerhalb einer Minute deinem Account gutgeschrieben.<br>
-              <a href="https://spezispezl.de/">Hier geht es zum Login</a><br>Noch Fragen? <a href="https://spezispezl.de/#howto" onclick="window.location.href = 'https://spezispezl.de/#howto'; window.location.reload();">Hier geht's zu den FAQs</a>
+              <a href="/">Hier geht es zum Login</a><br>Noch Fragen? <a href="/#howto">Hier geht's zu den FAQs</a>
             </div>
           </form>
         </section>
       </section>
     </div>
 
-    
+    <div id="storno" style="display: none;">
+      <section class="container">
+        <section class="login-form">
+          <form name="storno" role="login">
+            <section class="form-outer">
+              <h2 id="storno_id"></h2>
+              <p id = "storno_desc" class="card_id"></p>
+              <INPUT TYPE="hidden" NAME="id" VALUE="">
+              <textarea name="message" rows="4" required class="form-control input-lg" placeholder="Bitte gib eine Begründung an. Der Sachverhalt wird manuell geprüft und die Transaktion zurückgebucht"></textarea>
+              <button id="verify_btn" type="submit" value="Anfrage senden" name="go" class="btn btn-lg btn-block">Anfrage senden</button>
+            </section>
+          </form>
+        </section>
+      </section>
+    </div>
+
 
     <div id="resetpassword" style="display: none;">
       <section class="container">
@@ -148,7 +178,7 @@
                     <button name="go" type="submit" class="btn btn-lg btn-block">Passwort zurücksetzen</button>
             </section>
             <div class="form-outer">
-              <a href="https://spezispezl.de" onclick="window.location.href = 'https://spezispezl.de'; window.location.reload();">Zurück zur Übersicht</a>
+              <a href="/">Zurück zur Übersicht</a>
             </div>
           </form>
         </section>
@@ -169,7 +199,7 @@
                 <button name="go" type="submit" class="btn btn-lg btn-block">Passwort ändern</button>
             </section>
             <div class="form-outer">
-              <a href="https://spezispezl.de" onclick="window.location.href = 'https://spezispezl.de'; window.location.reload();">Zurück zur Übersicht</a>
+              <a href="/">Zurück zur Übersicht</a>
             </div>
           </form>
         </section>
@@ -187,7 +217,7 @@
                     <button name="go" class="btn btn-lg btn-block" onclick="add_card();">Karte hinzufügen</button>
             </section>
             <div class="form-outer">
-              <a href="https://spezispezl.de" onclick="window.location.href = 'https://spezispezl.de'; window.location.reload();">Zurück zur Übersicht</a>
+              <a href="/" >Zurück zur Übersicht</a>
             </div>
           </form>
         </section>
@@ -198,7 +228,7 @@
       <section class="table-background">
         <span id="paypalmail" class="paypalmail">Guthaben aufladen: <a href="mailto:spezispezl@mail.de">spezispezl@mail.de</a></span>
         <h2>Transaktionen</h2>
-        <div id="balance"></div><div id="stock" class="stock"><a href="https://spezispezl.de/stock/">Preisliste</a></div>
+        <div id="balance"></div><div id="stock" class="stock"><a href="stock/">Preisliste</a></div>
 
         <br>
         <div id="transaction-table">
@@ -210,59 +240,68 @@
       <section class="table-background">
         <h2>Aktionen</h2>
         <div id="actions" class="btn_action">
-          <button onclick="window.open('https://paypal.me/spezispezl');" type="button" value="Guthaben aufladen" name="go" onclick="" class="btn btn-lg btn-block">Guthaben aufladen</button>
+          <button onclick="window.open('https://paypal.me/spezispezl');" type="button" value="Guthaben aufladen" name="go" onclick="" class="btn btn-lg btn-block menubutton">Guthaben aufladen</button>
           
         <div id="supply_block" style="display: none;">
             <br>
-            <button value="Einkauf eintragen" name="go" onclick="get_products(); get_devices(); toggle_div('supply');" class="btn btn-lg btn-block">Einkauf eintragen</button>
+            <button value="Einkauf eintragen" name="go" onclick="get_products(); get_devices(); toggle_div('supply');" class="btn btn-lg btn-block menubutton">Einkauf eintragen</button>
             <div id="supply" style="display: none;">
-              <form name="supply" role="supply">
+              <form name="supply" role="supply" style="margin-top: 10px; margin-bottom: 10px;">
                 <label for="supply_device" class="fill_text">Automat:</label>
                 <select id="supply_device" onchange="get_device_config(document.getElementById('supply_device').value);"></select><br><br>
                 <input id="supply_price" name="supply_price" required class="form-control input-lg" placeholder="Betrag"></input><br>
                 <input id="supply_comment" name="supply_comment" required class="form-control input-lg" placeholder="Kommentar"></input><br>
-                <button id="fillup_btn" type="submit">Eintragen</button>
+                <button id="fillup_btn1" type="submit">Eintragen</button>
               </form>
             </div>
           </div>
 
           <div id="fillup" style="display: none;">
             <br>
-            <button value="Auffüllen" name="go" onclick="get_products(); get_devices(); toggle_div('fill');" class="btn btn-lg btn-block">Auffüllen</button>
+            <button value="Auffüllen" name="go" onclick="get_products(); get_devices(); toggle_div('fill');" class="btn btn-lg btn-block menubutton">Auffüllen</button>
             <div id="fill" style="display: none;">
-              <form name="fillup" role="fillup">
+              <form name="fillup" role="fillup" style="margin-top: 10px; margin-bottom: 10px;">
                 <label for="fillup_device" class="fill_text">Automat:</label>
                 <select id="fillup_device" onchange="get_device_config(document.getElementById('fillup_device').value);"></select><br><br>
                 <div id="fill_table" style="display: none;"></div>
-                <button id="fillup_btn" type="submit">Aufgefüllt</button>
+                <button id="fillup_btn2" type="submit">Aufgefüllt</button>
               </form>
             </div>
           </div>
           <br>
-          <button value="Karten verwalten" name="go" onclick="show_cards(); toggle_div('card_list');" class="btn btn-lg btn-block">Karten verwalten</button>
-          <div id="card_list" class="fill_text" style="display: none;"> </div>
+          <button value="Karten verwalten" name="go" onclick="show_cards(); toggle_div('card_list');" class="btn btn-lg btn-block menubutton">Karten verwalten</button>
+          <div id="card_list" class="fill_text" style="display: none; margin-top: 10px; margin-bottom: 10px;"><br> </div>
           <br>
           
-          <button id="bal_alert_btn" type="button" class="btn btn-lg btn-block" onclick="toggle_div('balance_alert');">Balance Alert</button>
+          <button id="bal_alert_btn" type="button" class="btn btn-lg btn-block menubutton" onclick="toggle_div('balance_alert');">Balance Alert</button>
           <div id="balance_alert" style="display: none;">
-            <p class="question">Erhalt eine Benachrichtigung, wenn dein Guthaben unter diesen Betrag fällt. Benutze -1 zum deaktivieren.</p>
-            <form name="form_balance_alert">
+            <form name="form_balance_alert" style="margin-top: 10px; margin-bottom: 10px;">
+              <p class="question">Erhalt eine Benachrichtigung, wenn dein Guthaben unter diesen Betrag fällt.<br>Benutze -1 zum deaktivieren.</p>
               <input id="alert_amount" name="alert_amount" required class="form-control input-lg" placeholder="Betrag"></input>
               <button id="balance_alert_btn" type="submit">Aktualisieren</button>
             </form>
           </div>
           <br>
-          <button value="Support" name="go" onclick="toggle_div('support');" class="btn btn-lg btn-block">Support</button>
+          <button value="Support" name="go" onclick="toggle_div('support');" class="btn btn-lg btn-block menubutton">Support</button>
           <div id="support" style="display: none;">
             <form name="form_support">
+              <br>
               <textarea name="message" rows="5" required class="form-control input-lg" placeholder="Deine Nachricht..."></textarea>
               <button id="support_btn" type="submit">Absenden</button>
             </form>
           </div>
           <br>
-          <button value="Passwort ändern" name="go" onclick="toggle_div('change_passwd');" class="btn btn-lg btn-block">Passwort ändern</button>
+          <button value="Guthaben auszahlen" name="go" onclick="toggle_div('payout');" class="btn btn-lg btn-block menubutton">Guthaben auszahlen</button>
+          <div id="payout" style="display: none;">
+            <form name="form_payout" style="margin-top: 10px; margin-bottom: 10px;">
+              <p class="question">Klicke hier um dein Guthaben auf dein PayPal-Konto zurückzubuchen.<br>Dies wird manuell verarbeitet und kann bis zu 48h dauern.</p><br>
+              <button id="support_btn" type="submit">Guthaben anfordern</button>
+            </form>
+          </div>
+          <br>
+          <button value="Passwort ändern" name="go" onclick="toggle_div('change_passwd');" class="btn btn-lg btn-block menubutton">Passwort ändern</button>
           <div id="change_passwd" style="display: none;">
-            <form name="form_change_passwd">
+            <form name="form_change_passwd" style="margin-top: 10px; margin-bottom: 10px;">
               <INPUT TYPE="hidden" NAME="mail" autocomplete="username" VALUE="">
               <input name="pw_current" type="password" autocomplete="current-password" required class="form-control input-lg" placeholder="aktuelles Passswort"></input>
               <input id="npw" name="pw_new" type="password" autocomplete="new-password" required class="form-control input-lg" placeholder="neues Passswort"></input>
@@ -272,17 +311,17 @@
             </form>
           </div>
           <br>
-          <button id="logout" type="button" class="btn btn-lg btn-block" onclick="logout();">Logout</button>
+          <button id="logout" type="button" class="btn btn-lg btn-block menubutton" onclick="logout();">Logout</button>
       </div>
 
       </section>
     </div>
     </div>
-  <div class="footer"><span class="impr" data-text="Lieber Sebastian, diese Seite ist ausschließlich für den internen Gebrauch bestimmt und verfolgt keinerlei öffentlichkeitswirksame Absicht.">Impressum & Datenschutz</span><span class="pricelink"><a href="https://spezispezl.de/stock/">Preisliste</a></span></div>
+  <div class="footer"><span class="impr" data-text="Lieber Sebastian, diese Seite ist ausschließlich für den internen Gebrauch bestimmt und verfolgt keinerlei öffentlichkeitswirksame Absicht.">Impressum & Datenschutz</span><span style="margin-left: 25%;"><a href="/info.html">Technische Infos</a></span><span class="pricelink"><a href="stock/">Preisliste</a></span></div>
 </div>
 
 <script>
-const api = "https://spezispezl.de/api2"
+const api = `https://${window.location.host}/api2`
 let token;
 let params;
 let mail;
@@ -357,7 +396,7 @@ async function read_card(){
     console.log(`CardId: ${id}`);
     //if(id.endsWith("E0")){
       suc = true;
-      location.replace(`https://spezispezl.de/?card_id=${id}`);
+      location.replace(`https://${window.location.host}/?card_id=${id}`);
     //} else {
     //  scan_error("Dieser Kartentyp wird nicht unterstützt", "red");
     //}
@@ -387,6 +426,8 @@ function init(){
 
   hide_div('paypalmail')
   hide_div('login');
+  hide_div('storno');
+  hide_div('confirm_storno');
   hide_div('wrong_pw');
   hide_div('transactions');
   hide_div('register');
@@ -408,6 +449,7 @@ function init(){
     token = ctoken;
   }
   //console.log(token);
+  // console.log(window.location.hash);
   if(params.get('card_id') || window.location.hash == '#register') {
     if(window.location.hash == '#add_card'){
       if(token == "" || token == null){
@@ -421,6 +463,13 @@ function init(){
       display_register(params.get('card_id'));
     }
   }
+  else if(window.location.hash == '#storno'){display_storno(params.get('id'),params.get('name'),params.get('price'), params.get('time'));}
+  else if(window.location.hash == '#confirm_storno'){
+    if(token == "" || token == null){
+        show_login();
+      } else {
+        show_div('confirm_storno');}
+      }
   else if(params.get('reset_passwd_token')){display_reset_passwd();}
   else if(params.get('token')) { display_validate_mail();}
   else if(window.location.hash == '#howto') { show_div('howto');}
@@ -480,9 +529,24 @@ function submitForm(e) {
     var url = `${api}/verify`;
     httpGetAsync(url,do_validate_mail,`token=${params.get('token')}`);
   }
+  else if(e.target.name == 'storno'){
+    var url = `${api}/storno`;
+    httpGetAsync(url,do_storno,`token=${token}&id=${params.get('id')}&msg=${document.forms["storno"]["message"].value}`);
+  }
+  else if(e.target.name == 'confirm_storno'){
+    var url = `${api}/confirm_storno`;
+    httpGetAsync(url,confirm_storno,`token=${token}&id=${params.get('id')}`);
+  }
   else if(e.target.name == 'form_support'){
     if(token != null){
       send_support(document.forms["form_support"]["message"].value);
+    } else {
+      alert("not logged in");
+    }
+  }
+  else if(e.target.name == 'form_payout'){
+    if(token != null){
+      send_support('payout');
     } else {
       alert("not logged in");
     }
@@ -524,6 +588,15 @@ function submitForm(e) {
   }
   
   return false;
+}
+
+function display_storno(id, name, price, time){
+  console.log("show storno");
+  show_div('storno');
+  let content = document.getElementById('storno_id');
+  let desc = document.getElementById('storno_desc');
+  content.innerHTML = `Rückbuchungsanfrage für ID: ${id}` 
+  desc.innerHTML = `1x ${name} (${price} €) am ${time}`;
 }
 
 function do_register(resp) {
@@ -568,7 +641,7 @@ function do_login(resp){
 
     } else if('state' in obj && obj.state == 'wrong password'){
       
-      div.innerHTML=`Passwort falsch <br> <a href="https://spezispezl.de/#resetpassword" onclick="window.location.href += '#resetpassword'; window.location.reload();">Passwort vergessen?</a>`;
+      div.innerHTML=`Passwort falsch <br> <a href="https://${window.location.host}/#resetpassword" onclick="window.location.href += '#resetpassword'; window.location.reload();">Passwort vergessen?</a>`;
       show_div('wrong_pw');
     }
     else if('state' in obj && obj.state == 'user not found'){
@@ -673,7 +746,7 @@ function handle_add_card(resp){
   var obj = JSON.parse(resp);
   if(obj.state == 'success'){
     alert(`Die Karte ${params.get('card_id')} wurde zu deinem Account hinzugefügt.`);
-    window.location.href = 'https://spezispezl.de/'; 
+    window.location.href = `https://${window.location.host}/`; 
     window.location.reload();
   } else {
     console.log(obj);
@@ -732,22 +805,33 @@ function display_transaction(resp){
       //console.log(d);
       transaction_data[line] = {};
       transaction_data[line]['Datum']= moment(new Date(Date.parse(d.time))).format('DD.MM.YY HH:mm');
+      transaction_data[line]['Guthaben'] = "";
       // if(d.source =='sielaff') {transaction_data[line].Art = 'Getränkeautomat'; }
       // if(d.source =='paypal') {transaction_data[line].Art = 'PayPal'; }
       // transaction_data[line].Slot=d.slot;
       //transaction_data[line]['Paypal Gebühr'] = d.fee + ' €';
+      if(d.transaction_id == null){
+        if(d.sender){
+          transaction_data[line]['Produkt']=`<span class="toolt" data-text="${d.sender}">${d.display_name}</span>`;
+        } else {
+          transaction_data[line]['Produkt']=`${d.display_name}`;
+        }
+        transaction_data[line]['Betrag'] = "";
+        transaction_data[line]['Storno'] = `<a href="https://${window.location.host}/?id=${d.id}&name=${d.display_name}&price=${d.price}&time=${transaction_data[line]['Datum']}#storno" >➜</a>`;
+      } else {
+        transaction_data[line]['Produkt']=`<span class="toolt" data-text="Transaktions ID: ${d.transaction_id}">${d.display_name}</span>`;
+        transaction_data[line]['Betrag'] = "";
+        transaction_data[line]['Storno'] = "";
+      }
+
       if(d.fee>0){
-        transaction_data[line]['Betrag'] = `<span class="toolt" data-text="${(parseFloat(d.price) + parseFloat(d.fee)).toFixed(2)} € - ${d.fee} € Paypal Gebühr\nVerwende Paypal Freunde&Familie um das zu vermeiden.">${d.price} €</span>`;
+          transaction_data[line]['Betrag'] = `<span class="toolt" data-text="${(parseFloat(d.price) + parseFloat(d.fee)).toFixed(2)} € - ${d.fee} € Paypal Gebühr\nVerwende Paypal Freunde&Familie um das zu vermeiden.">${d.price} €</span>`;
       } else {
         transaction_data[line]['Betrag'] = `${d.price} €`;
       }
-      if(d.transaction_id == null){
-        transaction_data[line]['Produkt']=`${d.display_name}`;
-      } else {
-        //d.transaction_id = "";
-        transaction_data[line]['Produkt']=`<span class="toolt" data-text="Transaktions ID: ${d.transaction_id}">${d.display_name}</span>`;
-      }
+
       transaction_data[line]['Guthaben']=d.balance_new +' €' ;
+      
       
       //transaction_data[line]['Transaktions ID']=`<p class="transaction_id">${d.transaction_id}</p>`  ;
       line = line +1;
@@ -791,6 +875,31 @@ function handle_support(resp){
     console.log(obj);
   }
 }
+
+function do_storno(resp){
+  var obj = JSON.parse(resp);
+  if(obj.state == 'success'){
+    hide_div('storno');
+    alert("Anfrage erfolgreich übermittelt");
+    reload_home();
+  } else {
+    console.log(obj);
+    alert(`Fehler: ${obj}`);
+  }
+}
+
+function confirm_storno(resp){
+  var obj = JSON.parse(resp);
+  if(obj.state == 'success'){
+    hide_div('confirm_storno');
+    alert("Storno erfolgreich");
+    reload_home();
+  } else {
+    console.log(obj);
+    alert(`Fehler: ${obj}`);
+  }
+}
+
 
 function send_fillup(data, device){
   url = `${api}/fillup`;
@@ -927,13 +1036,12 @@ function handle_set_password(resp){
 }
 
 function reload_home(){
-  window.location.replace('https://spezispezl.de'); 
+  window.location.replace(`https://${window.location.host}`); 
 }
 
 
 
-function httpGetAsync(theUrl, callback, data)
-{
+function httpGetAsync(theUrl, callback, data){
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function() { 
         if (xmlHttp.readyState == XMLHttpRequest.DONE && xmlHttp.status == 200)
@@ -993,6 +1101,12 @@ function get_opt_prod(selected){
 
 function get_opt_items(selected, max_items ){
   var opt ="";
+  //console.log(max_items);
+  if(max_items == -1){
+    opt = `<option value="-1" selected>-1</option>\n`
+    return opt;
+  }
+
   for (var i=0; i< max_items+1; i++){
     var sel = "";
     if (i == selected){sel = 'selected'}

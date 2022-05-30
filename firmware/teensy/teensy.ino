@@ -153,11 +153,19 @@ void setup_pins(bool en_interrupt){
 
 void read_pins(){
 	static uint32_t pin_state_old=0;
+	static int samecount = 0;
+
+	setup_pins(false);
 
 	uint16_t pin_state = mcp.readGPIOAB(); // The LSB corresponds to Port A, pin 0, and the MSB corresponds to Port B, pin 7.
 
+	// Serial.println(pin_state,BIN);
+	// SerialUSB1.println(pin_state, BIN);
+
+
 	if(pin_state == 0xFFFF) {
 		Serial.println("MCP Reset");
+		SerialUSB1.println("MCP Reset");
 		setup_pins(false);
 		pin_state = mcp.readGPIOAB();
 	}
@@ -168,20 +176,27 @@ void read_pins(){
 //		pin_state_old=pin_state;}
 
 	if(pin_state == pin_state_old){ // at least 2 cycles with same state
-		slot_selected = 0;
-		for (int i = 0; i<NUM_SLOTS; i++){
-			if( !(pin_state & (1 << i))){ // Pin is LOW
-				if(slot_selected){
-					//Serial.print("Error. More than 1 solt selected: "); Serial.println(slot_selected); 
-					slot_selected = 0; 
-					return;
+		samecount ++;
+		if(samecount >0){
+			slot_selected = 0;
+			for (int i = 0; i<NUM_SLOTS; i++){
+				if( !(pin_state & (1 << i))){ // Pin is LOW
+					if(slot_selected){
+						Serial.print("Error. MCP Reset. More than 1 slot selected: "); Serial.println(slot_selected);
+						SerialUSB1.print("Error. MCP Reset. More than 1 slot selected: "); SerialUSB1.println(slot_selected);
+						setup_pins(false);
+						slot_selected = 0; 
+						return;
+					}
+					slot_selected = i+1;
+					//Serial.printf("Slot selected: %i\n",slot_selected);
 				}
-				slot_selected = i+1;
-				//Serial.printf("Slot selected: %i\n",slot_selected);
 			}
+			box_opened = !(pin_state & (1 << PIN_SW_OPEN ));
+			box_closed = !(pin_state & (1 << PIN_SW_CLOSED )); // set pins
 		}
-		box_opened = !(pin_state & (1 << PIN_SW_OPEN ));
-		box_closed = !(pin_state & (1 << PIN_SW_CLOSED )); // set pins
+	}else {
+		samecount = 0;
 	}
 	pin_state_old = pin_state;
 }
@@ -237,7 +252,10 @@ if(get_rfid(uid)){
 			screensaver=false;
 		}
 
-		if(slot_selected_prev && slot_selected == 0){Serial.println("Slot released");}
+		if(slot_selected_prev && slot_selected == 0){
+			Serial.println("Slot released");
+			SerialUSB1.println("Slot released");
+		}
 		slot_selected_prev = slot_selected;
 		set_led(slot_selected-1); // light all slots with this product
 		send_slot(slot_selected);
@@ -254,6 +272,7 @@ if(get_rfid(uid)){
 		screensaver = true; // turn on screensaver
 		clear_all();
 		Serial.println("screensaver on");
+		SerialUSB1.println("screensaver on");
 	} else if( (millis()-slot_sel_time > 4000) && !screensaver){
 		set_led(-3); // turn leds off
 		//Serial.println("LED OFF");
@@ -272,6 +291,7 @@ if(get_rfid(uid)){
 			if(card_present && box_closed && !box_opened && balance_received){ set_state(ready_to_buy); balance_received=false;}
 			else if(millis()- last_state_change > 1500){
 				Serial.println("No answer from Backend -> reset");
+				SerialUSB1.println("No answer from Backend -> reset");
 				set_state(reset);
 			}
 		break;
@@ -279,6 +299,7 @@ if(get_rfid(uid)){
 		case ready_to_buy:
 			if(card_present && slot_selected && ( (balance >= products[slot_selected].price) || trust_user)){
 				Serial.printf("Opening slot %i, balance was %0.2f, price is %0.2f\n", slot_selected, balance, products[slot_selected].price);
+				SerialUSB1.printf("Opening slot %i, balance was %0.2f, price is %0.2f\n", slot_selected, balance, products[slot_selected].price);
 				unlock();
 				set_state(slot_unlocked);
 			}
@@ -327,11 +348,15 @@ if(get_rfid(uid)){
 
 	write_led();
 
-// reset every 30min
-	//if(screensaver && millis() > 60*1000*30){
+// setup pins every minute
+
+	static uint32_t last_setup = 0;
+	if(screensaver && millis() - last_setup > 60*1000){
+		setup_pins(false);
+		last_setup = millis();
 	//	SCB_AIRCR = 0x05FA0004;
 	//	asm volatile ("dsb");
-	//}
+	}
 }
 
 void unlock(){
@@ -339,12 +364,14 @@ void unlock(){
 	mcp.digitalWrite(PIN_RELEASE, 1);
 	mcp.digitalWrite(PIN_RELEASE, 1);
 	Serial.println("Unlocked");
+	SerialUSB1.println("Unlocked");
 }
 void lock(){
 	mcp.digitalWrite(PIN_RELEASE, 0);
 	mcp.digitalWrite(PIN_RELEASE, 0);
 	mcp.digitalWrite(PIN_RELEASE, 0);
 	Serial.println("Locked");
+	SerialUSB1.println("Locked");
 }
 
 
@@ -640,7 +667,7 @@ bool get_rfid(uint8_t* uid){
     return true;
   } 
 
-  delay(5);
+  //delay(5);
 
   nfc14443.reset();
   nfc14443.setupRF(0x00, 0x80);

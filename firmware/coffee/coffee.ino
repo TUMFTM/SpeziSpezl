@@ -55,6 +55,7 @@ uint32_t mill_time = 0;
 uint32_t mill_time_transaction = 0;
 bool mill_allowed = false;
 uint32_t last_temp_time=0;
+bool sent_reset_reason = false;
 
 
 
@@ -111,7 +112,12 @@ Product products[NUM_SLOTS] ={ {0,0,0,0,0}, {0,0,0,0,0}, {0,0,0,0,0} , {0,0,0,0,
 PN5180ISO14443 nfc14443(PIN_MISO,PIN_MOSI,PIN_CLK,PN5180_NSS, PN5180_BUSY, PN5180_RST); 
 PN5180ISO15693 nfc15693(PIN_MISO,PIN_MOSI,PIN_CLK,PN5180_NSS, PN5180_BUSY, PN5180_RST);
 
-DynamicJsonDocument json(1024);
+#define SER_BUFFER_SIZE 150 // Serial buffer size for commands
+char serialbuffer[SER_BUFFER_SIZE];
+
+//DynamicJsonDocument json(1024);
+StaticJsonDocument <2048> json;
+
 REQUEST request;
 uint32_t product_select_time=0;
 bool sensor_ok = true;
@@ -367,12 +373,37 @@ if(eduroam_connect()){ // reconnect if no connection
     sensor_ok = true; // to avoid multiple countups
   }
 
+  //read_serial();
+
   if(errcount > 2){
     ESP.restart();
   }
 
+  if(!sent_reset_reason){ // send reason after boot
+    sent_reset_reason = true;
+    send_restart();
+  }
+
 }
 }
+
+void read_serial(){
+  static int ser_counter =0;
+  bool process = false;
+  while(Serial.available() && !process){
+    serialbuffer[ser_counter] = Serial.read();
+    if(serialbuffer[ser_counter] == '\n'){process = true;}
+    else {ser_counter++;}
+  }
+  if(process){
+    process_cmd(String(serialbuffer));
+    // reset buffer
+    memset(serialbuffer, 0, SER_BUFFER_SIZE);
+    ser_counter = 0;
+  }
+}
+
+
 
 void start_milling(){
   digitalWrite(PIN_OUT,1); // turn mill on
@@ -446,12 +477,38 @@ bool send_temp(float temp){
   return sendRequest(url, data);
 }
 
+bool send_restart(){
+  String url = apiurl+ String("log_sensor");
+  String data = String("id=8&value=") +String(get_reset_reason());
+  return sendRequest(url, data);
+}
+
+int get_reset_reason(){
+  return rtc_get_reset_reason(0);
+ /**<1,  Vbat power on reset*/
+ /**<3,  Software reset digital core*/
+ /**<4,  Legacy watch dog reset digital core*/
+ /**<5,  Deep Sleep reset digital core*/
+ /**<6,  Reset by SLC module, reset digital core*/
+ /**<7,  Timer Group0 Watch dog reset digital core*/
+ /**<8,  Timer Group1 Watch dog reset digital core*/
+ /**<9,  RTC Watch dog Reset digital core*/
+/**<10, Instrusion tested to reset CPU*/
+/**<11, Time Group reset CPU*/
+/**<12, Software reset CPU*/
+/**<13, RTC Watch dog Reset CPU*/
+/**<14, for APP CPU, reseted by PRO CPU*/
+/**<15, Reset when the vdd voltage is not stable*/
+/**<16, RTC Watch dog reset digital core and rtc module*/
+}
+
 
 // GET / POST sending fuction. Adds Auth header
 bool sendRequest(String url, String data) {
+  static int errorcount = 0;
   if ((WiFi.status() == WL_CONNECTED)) {
     static bool requestOpenResult;
-    //Serial.println(data);
+    Serial.print("Sending: "); Serial.println(data);
     if (request.readyState() == readyStateUnsent || request.readyState() == readyStateDone){
       if(data == ""){
         requestOpenResult = request.open("GET", url.c_str());
@@ -466,6 +523,7 @@ bool sendRequest(String url, String data) {
         } else {
           request.send(data.c_str());
         }
+        errorcount = 0;
         return true;
       } else {
         Serial.println(F("Can't send bad request"));
@@ -475,6 +533,10 @@ bool sendRequest(String url, String data) {
     }
   } else {
       Serial.println(F("Wifi not Connected"));
+    }
+  errorcount++;
+    if(errorcount > 5){
+      ESP.restart();
     }
   return false;
 }
@@ -488,35 +550,54 @@ bool process_cmd(String str){
     Serial.print(F("deserializeJson() failed\n"));
     return false;
   }
-  if(json.containsKey("state")){ // 
+  //serializeJson(json, Serial);
+  //Serial.println();
+
+  JsonVariant j_test = json["test"];
+  if(!j_test.isNull()){
+    mill_allowed = true;
+    mill_time = 1000;
+    Serial.println("Testing");
+    return true;
+  }
+
+  JsonVariant j_state = json["state"];
+  //Serial.println(json["state"].as<char*>());
+  if(!j_state.isNull()){
     if(state == transaction_running || state == ready_to_buy || state == wait){
-      if(json["state"] == "success") {
+      if(j_state == "success") {
         transaction_ok = true;
         Serial.println("Transaction ok");
       } else {
         Serial.println("Transaction failed");
       }
+      return true;
     } else if(state == wait_for_balance){ // {"state":"user not exists"}
       set_state(error);
-    }
-  } 
-  if(json.containsKey("sensor")){ 
-      if(json["sensor"] == "success") {
-        sensor_ok = true;
-        errcount = 0; // reset errors
-      } else {
-        Serial.println("Sensor failed");
-      }
+      return true;
+    } else {Serial.println("json does bullshit");}
   }
-  else if(json.containsKey("balance")){ //{"balance":"-1.80","surname":"Test","trusted":false}
-    balance = json["balance"];
+  JsonVariant j_sensor = json["sensor"];
+  if(!j_sensor.isNull()){
+    if(j_sensor == "success") {
+      sensor_ok = true;
+      errcount = 0; // reset errors
+    } else {
+      Serial.println("Sensor failed");
+    }
+    return true;
+  }
+  JsonVariant j_balance = json["balance"];
+  if(!j_balance.isNull()){ //{"balance":"-1.80","surname":"Test","trusted":false}
+    balance = j_balance.as<float>();
     trust_user = json["trusted"];
     balance_received = true;
+    return true;
   }
-  else if(json.size()>0){
+  if(json.size()>0){
     for(int i=0; i<json.size(); i++){
       int slot = json[i]["slot"];
-      if(slot < NUM_SLOTS){
+      if(slot <= NUM_SLOTS){
         products[slot-1].valid = true;
         products[slot-1].price = json[i]["price"];
         products[slot-1].property = json[i]["property"];
@@ -526,11 +607,10 @@ bool process_cmd(String str){
 //{"slot":2,"product_id":99,"items":0,"price":"1.00","name":"coffee_2","display_name":"Kaffee 2x","property":0}]
     }
     products_received = true;
-  } else{
+    return true;
+  }
     Serial.println("Unknown response");
     return false;
-  }
-  return true;
 }
 
 
